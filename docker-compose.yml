@@ -1,0 +1,31 @@
+version: "3"
+services:
+  react-app:
+    build: ./client
+    volumes:
+      - ./client:/usr/src/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - express-server
+    networks:
+      - shopping-app
+  express-server:
+    build: ./server
+    volumes:
+      - ./server:/usr/src/app
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    networks:
+      - shopping-app
+  mongo:
+    image: mongo:3.6.19-xenial
+    ports:
+      - "27017:27017"
+    networks:
+      - shopping-app
+networks:
+  shopping-app:
+    driver: bridge
