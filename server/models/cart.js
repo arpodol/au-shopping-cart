@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const productSchema = new Schema({
+const cartItemSchema = new Schema({
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
   title: {
     type: String,
     required: true,
@@ -17,6 +18,8 @@ const productSchema = new Schema({
   },
 });
 
-const Product = mongoose.model("product", productSchema);
+const cartSchema = new Schema({ items: [cartItemSchema] });
 
-module.exports = Product;
+const Cart = mongoose.model("cart", cartSchema);
+
+module.exports = Cart;
