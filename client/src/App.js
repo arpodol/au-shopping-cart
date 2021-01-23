@@ -2,7 +2,7 @@ import React from "react";
 import "semantic-ui-css/semantic.min.css";
 import ShoppingCart from "./components/ShoppingCart";
 import ProductList from "./components/ProductList";
-import { Container } from "semantic-ui-react";
+import { Container, Button, Divider } from "semantic-ui-react";
 
 class App extends React.Component {
   state = {
@@ -14,46 +14,125 @@ class App extends React.Component {
     fetch("/api/products", { mode: "cors" })
       .then((response) => response.json())
       .then((products) => this.setState({ products }));
+    fetch("/api/cart", { mode: "cors" })
+      .then((response) => response.json())
+      .then((cart) => this.setState({ cart: cart.items }));
   }
 
-  addToCart = (product) => {
+  removeFromCart = (productId) => {
     let cart = this.state.cart.slice();
     const index = cart.findIndex(
-      (cartProduct) => cartProduct._id === product._id
+      (cartProduct) => cartProduct._id === productId
     );
 
-    const products = this.state.products.map((storeProduct) => {
-      if (storeProduct._id === product._id) storeProduct.quantity -= 1;
-      return storeProduct;
-    });
-
     if (index >= 0) {
-      product = cart[index];
-      cart[index] = Object.assign({}, product, {
-        quantity: product.quantity + 1,
+      const cartProduct = cart[index];
+      cart[index] = Object.assign({}, cartProduct, {
+        quantity: cartProduct.quantity - 1,
       });
-    } else {
-      product = Object.assign({}, product, { quantity: 1 });
-      cart = this.state.cart.concat(product);
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
     }
 
+    fetch(`/api/cart`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ cart }),
+    }).then((response) => response.json());
+
     this.setState({
-      products,
       cart,
     });
   };
 
-  onCheckout = () => {};
+  addToCart = (productId) => {
+    const product = this.state.products.find((product) => {
+      return product._id === productId;
+    });
+
+    let cart = this.state.cart.slice();
+
+    const index = cart.findIndex(
+      (cartProduct) => cartProduct._id === product._id
+    );
+
+    if (product.quantity === 0) return;
+
+    if (index >= 0) {
+      const cartProduct = cart[index];
+      if (cartProduct.quantity >= product.quantity) return;
+      cart[index] = Object.assign({}, cartProduct, {
+        quantity: cartProduct.quantity + 1,
+      });
+    } else {
+      const cartProduct = Object.assign({}, product, { quantity: 1 });
+      cart = this.state.cart.concat(cartProduct);
+    }
+
+    fetch(`/api/cart`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ cart }),
+    }).then((response) => response.json());
+
+    this.setState({
+      cart,
+    });
+  };
+
+  onCheckout = async () => {
+    const response = await fetch(`/api/checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+
+    const body = await response.json();
+    this.setState({ cart: body.cart.items, products: body.products });
+  };
+
+  onRestock = async () => {
+    let products = this.state.products.slice();
+    products.forEach((product) => {
+      product.quantity += 5;
+    });
+
+    const response = await fetch(`/api/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ products }),
+    });
+    const body = await response.json();
+    this.setState({ products: body.products });
+  };
 
   render() {
     return (
       <main>
         <Container>
-          <ShoppingCart cart={this.state.cart} onCheckout={this.onCheckout} />
+          <ShoppingCart
+            cart={this.state.cart}
+            onCheckout={this.onCheckout}
+            onAddProduct={this.addToCart}
+            onRemoveProduct={this.removeFromCart}
+          />
           <ProductList
             products={this.state.products}
             onCartClick={this.addToCart}
           />
+          <Divider />
+          <Button basic color="green" onClick={this.onRestock}>
+            Restock Products
+          </Button>
         </Container>
       </main>
     );

@@ -4,7 +4,7 @@ import { Item, Button } from "semantic-ui-react";
 class Product extends React.Component {
   handleCartClick = (e) => {
     e.preventDefault();
-    this.props.onCartClick(this.props.product);
+    this.props.onCartClick(this.props.product._id);
   };
 
   render() {

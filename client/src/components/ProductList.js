@@ -7,13 +7,9 @@ function ProductList({ products, onCartClick }) {
     <div className="productList">
       <h2>Products</h2>
       <Item.Group divided>
-        {products.map((product) => {
+        {products.map((product, i) => {
           return (
-            <Product
-              key={product.id}
-              product={product}
-              onCartClick={onCartClick}
-            />
+            <Product key={i} product={product} onCartClick={onCartClick} />
           );
         })}
       </Item.Group>
