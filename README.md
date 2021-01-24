@@ -5,4 +5,4 @@ An individual can only add as much products to their cart as there are products 
 There is a restock button that adds 5 more to the quantity of each for testing sake.
 
 # To Run
-In root run  <code>docker-compose up</code> and navigate to <code>localhost:3000</code>
+In root directory, run  <code>docker-compose up</code> and navigate to <code>localhost:3000</code>
