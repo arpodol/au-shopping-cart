@@ -1,12 +1,12 @@
 import React from "react";
 import { total } from "../helpers";
-import { Table, Menu, Button } from "semantic-ui-react";
+import { Menu, Button } from "semantic-ui-react";
 
 function ShoppingCart({ cart, onCheckout, onAddProduct, onRemoveProduct }) {
   if (cart.length === 0) {
     return (
       <Menu>
-        <div className="cart">
+        <div>
           <h2>Your Cart</h2>
           <h3>Your cart is empty</h3>
           <p>Total: $0</p>
@@ -19,62 +19,43 @@ function ShoppingCart({ cart, onCheckout, onAddProduct, onRemoveProduct }) {
   } else {
     return (
       <Menu>
-        <div className="cart">
-          <h2>Your Cart</h2>
-          <Table columns={5}>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Item</Table.HeaderCell>
-                <Table.HeaderCell>Quantity</Table.HeaderCell>
-                <Table.HeaderCell>Price</Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
+        <h2>Your Cart</h2>
+        <table className="cart-items">
+          <tbody>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th></th>
+            </tr>
+            {cart.map((product, i) => {
+              return (
+                <tr key={i}>
+                  <td>{product.title}</td>
+                  <td>{product.quantity}</td>
+                  <td>${(product.price * product.quantity).toFixed(2)}</td>
+                  <td>
+                    <Button onClick={() => onRemoveProduct(product._id)}>
+                      -
+                    </Button>
+                    <Button onClick={() => onAddProduct(product._id)}>+</Button>
+                  </td>
+                </tr>
+              );
+            })}
 
-            <Table.Body>
-              {cart.map((product, i) => {
-                return (
-                  <Table.Row key={i}>
-                    <Table.Cell>{product.title}</Table.Cell>
-                    <Table.Cell>{product.quantity}</Table.Cell>
-                    <Table.Cell>
-                      ${(product.price * product.quantity).toFixed(2)}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button onClick={() => onRemoveProduct(product._id)}>
-                        -
-                      </Button>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button onClick={() => onAddProduct(product._id)}>
-                        +
-                      </Button>
-                    </Table.Cell>
-                  </Table.Row>
-                );
-              })}
-            </Table.Body>
-
-            <Table.Footer>
-              <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell>
-                  <strong>Total:</strong>
-                </Table.HeaderCell>
-                <Table.HeaderCell>
-                  <strong>${total(cart)}</strong>
-                </Table.HeaderCell>
-                <Table.HeaderCell />
-                <Table.HeaderCell>
-                  <Button primary onClick={onCheckout}>
-                    Checkout
-                  </Button>
-                </Table.HeaderCell>
-              </Table.Row>
-            </Table.Footer>
-          </Table>
-        </div>
+            <tr>
+              <td colSpan="3" className="total">
+                Total: ${total(cart)}
+              </td>
+              <td>
+                <Button primary onClick={onCheckout}>
+                  Checkout
+                </Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Menu>
     );
   }

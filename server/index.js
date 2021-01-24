@@ -2,14 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
-
 const apiRoutes = require("./routes/api");
 const MongoStore = require("connect-mongo")(session);
-
 const Product = require("./models/product");
+const data = require("./data");
 
 const connectionString = "mongodb://mongo:27017/artifact";
-
 const app = express();
 const port = 5000;
 
@@ -24,29 +22,6 @@ mongoose
 
 const db = mongoose.connection;
 
-const data = [
-  {
-    title: "Photobook",
-    quantity: 3,
-    price: 39.99,
-  },
-  {
-    title: "Get Well Card",
-    quantity: 1,
-    price: 9.99,
-  },
-  {
-    title: "Thank You Cards(30)",
-    quantity: 2,
-    price: 29.99,
-  },
-  {
-    title: "Candle",
-    quantity: 12,
-    price: 5.34,
-  },
-];
-
 app.use(express.static(__dirname + "/public"));
 
 app.use(bodyParser.json());
@@ -60,15 +35,16 @@ app.use(
   })
 );
 
-const seedProducts = async () => {
+app.use("/api", apiRoutes);
+
+const seedProducts = async (data) => {
   const products = await Product.find();
   if (products.length === 0) {
     await Product.insertMany(data);
   }
 };
 
-app.use("/api", apiRoutes);
 app.listen(port, () => {
-  seedProducts();
+  seedProducts(data);
   console.log(`Server running on port ${port}`);
 });

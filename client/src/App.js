@@ -8,6 +8,7 @@ class App extends React.Component {
   state = {
     products: [],
     cart: [],
+    warning: "",
   };
 
   componentDidMount() {
@@ -45,6 +46,7 @@ class App extends React.Component {
 
     this.setState({
       cart,
+      warning: "",
     });
   };
 
@@ -63,7 +65,10 @@ class App extends React.Component {
 
     if (index >= 0) {
       const cartProduct = cart[index];
-      if (cartProduct.quantity >= product.quantity) return;
+      if (cartProduct.quantity >= product.quantity) {
+        this.setState({ warning: "!Not enough in stock!" });
+        return;
+      }
       cart[index] = Object.assign({}, cartProduct, {
         quantity: cartProduct.quantity + 1,
       });
@@ -82,6 +87,7 @@ class App extends React.Component {
 
     this.setState({
       cart,
+      warning: "",
     });
   };
 
@@ -95,7 +101,11 @@ class App extends React.Component {
     });
 
     const body = await response.json();
-    this.setState({ cart: body.cart.items, products: body.products });
+    this.setState({
+      cart: body.cart.items,
+      products: body.products,
+      warning: "",
+    });
   };
 
   onRestock = async () => {
@@ -112,13 +122,14 @@ class App extends React.Component {
       body: JSON.stringify({ products }),
     });
     const body = await response.json();
-    this.setState({ products: body.products });
+    this.setState({ products: body.products, warning: "" });
   };
 
   render() {
     return (
       <main>
         <Container>
+          {this.state.warning ? <h3>{this.state.warning}</h3> : null}
           <ShoppingCart
             cart={this.state.cart}
             onCheckout={this.onCheckout}
