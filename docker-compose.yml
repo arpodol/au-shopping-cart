@@ -4,6 +4,7 @@ services:
     build: ./client
     volumes:
       - ./client:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -14,6 +15,7 @@ services:
     build: ./server
     volumes:
       - ./server:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       - mongo
     ports:
